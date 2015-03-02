@@ -38,7 +38,27 @@
     }
   }
 
+  var currentText = new PIXI.Text("Current: 1/100", {font: height/2+"px Arial", fill:"white"});
+  currentText.position.y = 10.5 * height;
+  currentText.position.x = width/2;
+  stage.addChild(currentText);
+
+
+  var recordMessage = "Record: None Yet";
+  if(localStorage.recordVisited){
+    recordMessage = "Record: "+localStorage.recordVisited+"/100";
+  }
+
+  var recordText = new PIXI.Text(recordMessage, {font: height/2+"px Arial", fill:"white"});
+  recordText.position.y = 10.5 * height;
+  recordText.position.x = 5.5 * width;
+  recordText.recordVisited = 0;
+  stage.addChild(recordText);
+
   function drawTile(tile){
+    if(!tile.clear){
+      return;
+    }
     tile.clear();
     tile.lineStyle(1, 0x222222);
     var color = 0xC9D6F7;
@@ -121,10 +141,20 @@ xx4x3xxx
         visited++;
       }
 
-    })
+    });
+
+    currentText.setText("Current: "+visited+"/100")
 
     if(!potentials){
-      alert("you have unlocked "+visited+"/100");
+      if(visited > recordText.recordVisited){
+        recordText.recordVisited = visited;
+        recordText.setText("Record: "+visited+"/100");
+        localStorage.recordVisited = visited;
+        alert("New RECORD: "+visited+"/100!");
+      }else{
+        alert("You have unlocked "+visited+"/100");
+      }
+
       stage.children.forEach(function(tile){
         tile.status = 'new';
         drawTile(tile);
