@@ -9,34 +9,47 @@
 
   var grid = [];
 
-  for (var i = 0; i < 10; i++){
-    grid[i] = [];
+  var size = 5;
+  if(localStorage.sizeOfGrid){
+    size = +localStorage.sizeOfGrid;
+  }
+  var capacity = size * size;
 
-    for (var j = 0; j < 10; j++){
-
-      var x = 0 + j * width;
-      var y = 0 + i * height;
-
-      var tile = new PIXI.Graphics();
-      tile.position.x = x;
-      tile.position.y = y;
-      tile.gridPosition = {
-        x: i,
-        y: j
+  function initGrid(){
+    for (var i = 0; i < size; i++){
+      if(!grid[i]){
+        grid[i] = [];
       }
-      tile.status = 'new';
-      // tile.clear();
-      // tile.lineStyle(1, 0xBB1288);
-      // tile.beginFill(0xFA12AA);
-      // tile.drawRect(x, y, width, height);
-      // tile.endFill();
+
+
+      for (var j = 0; j < size; j++){
 
 
 
-      grid[i][j] = tile;
-      stage.addChild(tile);
+        var x = 0 + j * width;
+        var y = 0 + i * height;
+
+        if(!grid[i][j]){
+          grid[i][j] = new PIXI.Graphics();
+          stage.addChild(grid[i][j]);
+        }
+        var tile = grid[i][j];
+
+        tile.position.x = x;
+        tile.position.y = y;
+        tile.gridPosition = {
+          x: i,
+          y: j
+        }
+        tile.status = 'new';
+
+
+      }
     }
   }
+
+  initGrid()
+
 
   var currentText = new PIXI.Text("Current: 1/100", {font: height/2+"px Arial", fill:"white"});
   currentText.position.y = 10.5 * height;
@@ -46,7 +59,7 @@
 
   var recordMessage = "Record: None Yet";
   if(localStorage.recordVisited){
-    recordMessage = "Record: "+localStorage.recordVisited+"/100";
+    recordMessage = "Record: "+localStorage.recordVisited+"/"+capacity;
   }
 
   var recordText = new PIXI.Text(recordMessage, {font: height/2+"px Arial", fill:"white"});
@@ -86,7 +99,7 @@ xx4x3xxx
 
   function get(x, y){
     if(x >=0 && y >= 0){
-      if(x < 10 && y < 10){
+      if(x < grid.length && y < grid.length){
         return grid[x][y];
       }
     }
@@ -104,6 +117,7 @@ xx4x3xxx
       tile.interactive = false;
     })
     var current = get(x,y);
+
     current.status = 'current';
 
     var potential = [
@@ -143,16 +157,28 @@ xx4x3xxx
 
     });
 
-    currentText.setText("Current: "+visited+"/100")
+    currentText.setText("Current: "+visited+"/"+capacity)
 
     if(!potentials){
-      if(visited > recordText.recordVisited){
+
+      setTimeout(function(){
+
+
+      if(visited == capacity){
+        recordText.setText("Record: "+visited+"/"+capacity);
+        size++;
+        capacity = size * size;
+        localStorage.recordVisited = 1;
+        localStorage.sizeOfGrid = size;
+        alert("You have unlocked "+capacity+" grid!");
+        initGrid();
+      }else if(visited > recordText.recordVisited){
         recordText.recordVisited = visited;
-        recordText.setText("Record: "+visited+"/100");
+        recordText.setText("Record: "+visited+"/"+capacity);
         localStorage.recordVisited = visited;
-        alert("New RECORD: "+visited+"/100!");
+        alert("New RECORD: "+visited+"/"+capacity);
       }else{
-        alert("You have unlocked "+visited+"/100");
+        alert("You have unlocked "+visited+"/"+capacity);
       }
 
       stage.children.forEach(function(tile){
@@ -160,6 +186,8 @@ xx4x3xxx
         drawTile(tile);
       });
       visit(0,0);
+
+    }, 500);
     }
 
   }
