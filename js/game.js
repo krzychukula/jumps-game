@@ -2,7 +2,7 @@
 
 (function(){
 
-  var stage = new PIXI.Stage();
+  var stage = new PIXI.Container();
 
   var width = 40;
   var height = 40;
@@ -157,7 +157,7 @@ xx4x3xxx
 
     });
 
-    currentText.setText("Current: "+visited+"/"+capacity)
+    currentText.text = "Current: "+visited+"/"+capacity;
 
     if(!potentials){
 
@@ -165,7 +165,7 @@ xx4x3xxx
 
 
       if(visited == capacity){
-        recordText.setText("Record: "+visited+"/"+capacity);
+        recordText.text = "Record: "+visited+"/"+capacity;
         size++;
         capacity = size * size;
         localStorage.recordVisited = 1;
@@ -174,7 +174,7 @@ xx4x3xxx
         initGrid();
       }else if(visited > recordText.recordVisited){
         recordText.recordVisited = visited;
-        recordText.setText("Record: "+visited+"/"+capacity);
+        recordText.text = "Record: "+visited+"/"+capacity;
         localStorage.recordVisited = visited;
         alert("New RECORD: "+visited+"/"+capacity);
       }else{
@@ -195,7 +195,7 @@ xx4x3xxx
   visit(0,0);
 
 
-  var renderer = PIXI.autoDetectRecommendedRenderer();
+  var renderer = PIXI.autoDetectRenderer();
 
   document.body.appendChild(renderer.view);
 
