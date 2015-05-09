@@ -1,0 +1,22 @@
+{
+  "name": "jumps-game",
+  "version": "1.0.0",
+  "description": "simple pixi game",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krzychukula/jumps-game.git"
+  },
+  "author": "Krzysztof Kula",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krzychukula/jumps-game/issues"
+  },
+  "homepage": "https://github.com/krzychukula/jumps-game",
+  "devDependencies": {
+    "http-server": "^0.8.0"
+  }
+}
