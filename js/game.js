@@ -4,6 +4,9 @@
 
   var stage = new PIXI.Container();
 
+  var w = 800;
+  var h = 600;
+
   var width = 40;
   var height = 40;
 
@@ -14,6 +17,9 @@
     size = +localStorage.sizeOfGrid;
   }
   var capacity = size * size;
+
+  var gridContainer = new PIXI.Container();
+  stage.addChild(gridContainer);
 
   function initGrid(){
     for (var i = 0; i < size; i++){
@@ -31,7 +37,7 @@
 
         if(!grid[i][j]){
           grid[i][j] = new PIXI.Graphics();
-          stage.addChild(grid[i][j]);
+          gridContainer.addChild(grid[i][j]);
         }
         var tile = grid[i][j];
 
@@ -67,6 +73,51 @@
   recordText.position.x = 5.5 * width;
   recordText.recordVisited = 0;
   stage.addChild(recordText);
+
+  var popup = new PIXI.Container();
+  var popupDimensions = {
+    w: w * 0.8,
+    h: h * 0.8
+  }
+  popup.position.set(w * 0.5 - popupDimensions.w * 0.5, h * 0.5 - popupDimensions.h * 0.5);
+  var box = new PIXI.Graphics();
+  box.clear();
+  box.lineStyle(1, 0x222222);
+  box.beginFill(0x444444);
+  box.drawRect(0,0, popupDimensions.w,popupDimensions.h);
+  box.endFill();
+  popup.addChild(box);
+  var info = new PIXI.Text("Try to visit every box", {font: height * 0.5+"px Arial", fill:"white"} );
+  info.anchor.set(0.5);
+  info.position.set(popupDimensions.w * 0.5,popupDimensions.h * 0.25)
+  popup.addChild(info);
+  var close = new PIXI.Graphics();
+  close.interactive = true;
+  close.buttonMode = true;
+  close.position.set(popupDimensions.w * 0.5, popupDimensions.h * 0.9);
+  close.clear();
+  close.lineStyle(1, 0x000000);
+  close.beginFill(0xFFFFFF);
+  var closeDimensions = {
+    w: popupDimensions.w * 0.2,
+    h: popupDimensions.h * 0.1
+  }
+  close.drawRect(-closeDimensions.w * 0.5,-closeDimensions.h*0.5, closeDimensions.w, closeDimensions.h);
+  close.endFill();
+  close.click = close.touchend = function(e){
+    popup.visible = false;
+  }
+  popup.addChild(close);
+  var closeText = new PIXI.Text("ok", {font: height/2+"px Arial", fill:"black"} );
+  closeText.anchor.set(0.5);
+  closeText.position.set(popupDimensions.w * 0.5,popupDimensions.h * 0.9)
+  popup.addChild(closeText);
+  stage.addChild(popup);
+
+  function notifyUser (text){
+    info.text = text;
+    popup.visible = true;
+  }
 
   function drawTile(tile){
     if(!tile.clear){
@@ -107,7 +158,7 @@ xx4x3xxx
 
   function visit(x, y){
 
-    stage.children.forEach(function(tile){
+    gridContainer.children.forEach(function(tile){
       if(tile.status == 'current'){
         tile.status = 'visited';
       }else if(tile.status == 'potential'){
@@ -148,7 +199,7 @@ xx4x3xxx
 
     var visited = 0;
 
-    stage.children.forEach(function(tile){
+    gridContainer.children.forEach(function(tile){
       drawTile(tile);
 
       if(tile.status == 'visited' || tile.status == 'current'){
@@ -170,18 +221,18 @@ xx4x3xxx
         capacity = size * size;
         localStorage.recordVisited = 1;
         localStorage.sizeOfGrid = size;
-        alert("You have unlocked "+capacity+" grid!");
+        notifyUser("You have unlocked "+capacity+" grid!");
         initGrid();
       }else if(visited > recordText.recordVisited){
         recordText.recordVisited = visited;
         recordText.text = "Record: "+visited+"/"+capacity;
         localStorage.recordVisited = visited;
-        alert("New RECORD: "+visited+"/"+capacity);
+        notifyUser("New RECORD: "+visited+"/"+capacity);
       }else{
-        alert("You have unlocked "+visited+"/"+capacity);
+        notifyUser("You have unlocked "+visited+"/"+capacity);
       }
 
-      stage.children.forEach(function(tile){
+      gridContainer.children.forEach(function(tile){
         tile.status = 'new';
         drawTile(tile);
       });
@@ -195,7 +246,7 @@ xx4x3xxx
   visit(0,0);
 
 
-  var renderer = PIXI.autoDetectRenderer();
+  var renderer = PIXI.autoDetectRenderer(w, h);
 
   document.body.appendChild(renderer.view);
 
